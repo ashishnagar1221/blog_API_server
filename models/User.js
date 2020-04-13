@@ -7,12 +7,17 @@ const UserSchema = new mongoose.Schema({
     },
     email:{
         type: String,
-        required:true
+        required:true,
+        unique:true
     },
     password:{
         type: String,
         required:true
-    }
+    },
+    allPost:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post'
+    }]
 })
 
 const User = mongoose.model('User',UserSchema);
