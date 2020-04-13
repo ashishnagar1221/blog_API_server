@@ -25,7 +25,7 @@ mongoose.connect(URI,  {
   app.get('/',(req,res)=>{
       res.send("Happy to connect!")
   })
-  
+
 //Show all users in database
 app.get('/users',(req,res)=>{
     Users.find().exec((err,users) =>{
@@ -68,12 +68,20 @@ app.post('/users',(req,res) =>{
 
 //to check the valid user = pass user_name and password as a query parameter and check if the user exists
 app.get('/post/valid',(req,res)=>{
-    Users.find({name:req.query.name,email:req.query.email}).exec((err,docs) =>{
-        if(err)
-            return res.send(err)
-        else if(docs.length)
-          return res.send("User is valid");  
-        else return res.send("Invalid User");
+    const UserName = req.query.name;
+    const pass = req.query.password;
+    Users.findOne({name:UserName})
+    .then((user)=>{
+        //console.log(user)
+        if(!user){
+            return res.status(404).json({name:'User not found'})
+        }
+        bcrypt.compare(pass,user.password).then(isMatch=>{
+            if(isMatch)
+            return res.send("User is valid");  
+            else return res.send("Invalid User");
+            
+        })
     })
 })
 
