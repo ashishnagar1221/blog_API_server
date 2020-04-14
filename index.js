@@ -9,7 +9,7 @@ const Users = require('./models/User');
 
 const app = express();
 
-const URI = "mongodb+srv://user:root@taramandal-puhil.mongodb.net/test?retryWrites=true&w=majority/Blog"
+const URI = "mongodb+srv://user:root@taramandal-puhil.mongodb.net/Blog?retryWrites=true&w=majority"
 
 mongoose.connect(URI,  {
     useNewUrlParser: true,
@@ -51,7 +51,7 @@ app.post('/adduser',(req,res) =>{
     const {name,email,password,allPost} = req.body;
     newUser.name = name;
     newUser.email = email;
-    newUser.allPost = allPost;
+    //newUser.allPost = allPost;
     bcrypt.genSalt(10,(err,salt)=>{
         bcrypt.hash(password,salt,(err,hash)=>{
             if(err) return res.send(err);
