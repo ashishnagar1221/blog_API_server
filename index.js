@@ -9,7 +9,7 @@ const Users = require('./models/User');
 
 const app = express();
 
-const URI = "'mongodb://127.0.0.1:27017/Blog"
+const URI = "mongodb+srv://user:root@taramandal-puhil.mongodb.net/test?retryWrites=true&w=majority/Blog"
 
 mongoose.connect(URI,  {
     useNewUrlParser: true,
