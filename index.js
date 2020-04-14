@@ -36,7 +36,6 @@ app.get('/users',(req,res)=>{
 })
 
 //read the existing data = fetches the blog posts
-
 app.get('/posts',(req,res)=>{
     Posts.find().exec((err,posts) =>{
         if(err)
@@ -45,13 +44,14 @@ app.get('/posts',(req,res)=>{
     })
 })
 
-
 //ading a new user in database
-app.post('/users',(req,res) =>{
+app.post('/adduser',(req,res) =>{
     const newUser = new Users();
-    const {name,email,password} = req.body;
+    const newPost = new Posts();
+    const {name,email,password,allPost} = req.body;
     newUser.name = name;
     newUser.email = email;
+    newUser.allPost = allPost;
     bcrypt.genSalt(10,(err,salt)=>{
         bcrypt.hash(password,salt,(err,hash)=>{
             if(err) return res.send(err);
@@ -64,7 +64,6 @@ app.post('/users',(req,res) =>{
         })
     }) 
 })
-
 
 //to check the valid user = pass user_name and password as a query parameter and check if the user exists
 app.get('/post/valid',(req,res)=>{
@@ -85,8 +84,36 @@ app.get('/post/valid',(req,res)=>{
     })
 })
 
+//Adding a new post in data base
+app.post('/newpost',(req,res)=>{
+    Users.findOne({name:req.body.postedBy})
+    .then((user)=>{
+        console.log(user._id)
+        const {title,postText,postedBy} = req.body;
+        const newPost = new Posts();
+        newPost.title = title;
+        newPost.postText = postText;
+        newPost.postedBy = [user._id];
+
+        newPost.save((err,add)=>{
+            if(err)
+                return res.send(`Error while adding the new User: ${err}`);
+        })
+        
+        
+        Users.findOneAndUpdate({_id: user._id},
+        {$push:{allPost: newPost}},(err, add) =>{
+            if(err) console.log(err);
+            else{
+                return res.json(add);
+            }
+        });
+
+    })
+})
 
 
+//
 const PORT = process.env.PORT || 3600;
 
 app.listen(PORT, function(){
