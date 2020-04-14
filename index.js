@@ -9,7 +9,7 @@ const Users = require('./models/User');
 
 const app = express();
 
-const URI = "mongodb+srv://user:root@taramandal-puhil.mongodb.net/Blog?retryWrites=true&w=majority"
+const URI = "mongodb://127.0.0.1:27017/Blog"
 
 mongoose.connect(URI,  {
     useNewUrlParser: true,
@@ -113,7 +113,29 @@ app.post('/newpost',(req,res)=>{
 })
 
 
-//
+//modify a blog post for a given User
+app.get('/delete',(req,res) =>{
+    const delTitle = req.query.title;
+    const author = req.query.name;
+    // console.log(delTitle)
+    Posts.findOne({title:delTitle})
+    .then((post) =>{
+        Users.findOne({allPost:post._id}).then((user)=>{    
+        //console.log(user.allPost)
+            if(user.allPost.includes(post._id)){
+                //console.log(post._id)
+                Posts.deleteOne({title:post.title},(err,del)=> {
+                    if(err) console.log(err);
+                    else{
+                        return res.json(del);
+                    }
+                });
+            }
+        })
+    })
+})
+
+
 const PORT = process.env.PORT || 3600;
 
 app.listen(PORT, function(){
