@@ -4,6 +4,8 @@ const moongose = require('mongoose')
 const bcrypt = require('bcryptjs')
 const Posts = require('../models/Post');
 const Users = require('../models/User');
+const jwt = require('jsonwebtoken')
+const {JWT} = require('../middleware/keys')
 
 
 router.post('/adduser',(req,res) =>{
@@ -50,10 +52,10 @@ router.post('/signin',(req,res)=>{
         bcrypt.compare(password,addUser.password)
         .then((match)=>{
             if(match){
-                //const token = jwt.sign({_id:addUser._id},JWT)
+                const token = jwt.sign({_id:addUser._id},JWT)
                 const {_id,name,email} = addUser
-                // res.json({token,user:{_id,name,email}})
-                res.json({message:"Sucessfully Signed in"})
+                res.json({token,user:{_id,name,email}})
+                //res.json({message:"Sucessfully Signed in"})
             }
                 //res.json({message:"Sucessfully Signed in"})
             else
