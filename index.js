@@ -9,8 +9,8 @@ const Users = require('./models/User');
 
 const app = express();
 
-//const URI = "mongodb://127.0.0.1:27017/Blog"
-const URI = "mongodb+srv://user:root@taramandal-puhil.mongodb.net/Blog?retryWrites=true&w=majority"
+const URI = "mongodb://127.0.0.1:27017/Blog"
+//const URI = "mongodb+srv://user:root@taramandal-puhil.mongodb.net/Blog?retryWrites=true&w=majority"
 
 mongoose.connect(URI,  {
     useNewUrlParser: true,
@@ -22,7 +22,8 @@ mongoose.connect(URI,  {
   .catch(err =>console.log(err));
 
   app.use(bodyParser.json());
-
+  app.use(require('./routes/auth'))
+  
   app.get('/',(req,res)=>{
       res.send("Happy to connect!")
   })
@@ -46,25 +47,25 @@ app.get('/posts',(req,res)=>{
 })
 
 //ading a new user in database
-app.post('/adduser',(req,res) =>{
-    const newUser = new Users();
-    const newPost = new Posts();
-    const {name,email,password,allPost} = req.body;
-    newUser.name = name;
-    newUser.email = email;
-    //newUser.allPost = allPost;
-    bcrypt.genSalt(10,(err,salt)=>{
-        bcrypt.hash(password,salt,(err,hash)=>{
-            if(err) return res.send(err);
-            newUser.password = hash; 
-            newUser.save((err,add)=>{
-                if(err)
-                    return res.send(`Error while adding the new User: ${err}`);
-                return res.json(add);
-            })
-        })
-    }) 
-})
+// app.post('/adduser',(req,res) =>{
+//     const newUser = new Users();
+//     const newPost = new Posts();
+//     const {name,email,password,allPost} = req.body;
+//     newUser.name = name;
+//     newUser.email = email;
+//     //newUser.allPost = allPost;
+//     bcrypt.genSalt(10,(err,salt)=>{
+//         bcrypt.hash(password,salt,(err,hash)=>{
+//             if(err) return res.send(err);
+//             newUser.password = hash; 
+//             newUser.save((err,add)=>{
+//                 if(err)
+//                     return res.send(`Error while adding the new User: ${err}`);
+//                 return res.json(add);
+//             })
+//         })
+//     }) 
+// })
 
 //to check the valid user = pass user_name and password as a query parameter and check if the user exists
 app.get('/post/valid',(req,res)=>{
