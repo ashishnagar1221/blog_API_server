@@ -119,22 +119,31 @@ app.post('/newpost',(req,res)=>{
 app.get('/delete',(req,res) =>{
     const delTitle = req.query.title;
     const author = req.query.name;
-    // console.log(delTitle)
     Posts.findOne({title:delTitle})
-    .then((post) =>{
-        Users.findOne({allPost:post._id}).then((user)=>{    
-        //console.log(user.allPost)
-            if(user.allPost.includes(post._id)){
-                //console.log(post._id)
-                Posts.deleteOne({title:post.title},(err,del)=> {
-                    if(err) console.log(err);
-                    else{
-                        return res.json(del);
-                    }
-                });
-            }
-        })
+    .then(post =>{
+        if(!post)
+            return res.send('Post of this title not found')
+        else{
+            //console.log(post)
+            Users.findOne({name:author})
+            .then(user =>{
+                if(!user)
+                    return res.send('User of this name not found')
+                else if(user.allPost.includes(post._id)){
+                    Posts.deleteOne({title:post.title},(err,del)=> {
+                        if(err) return res.send("Some error occur")
+                        else{
+                            return res.send("Post Deleted")
+                        }
+                    });
+                }else{
+                    return res.send("Post does not belongs to Given User")
+                }
+            })
+        }
     })
+       
+    
 })
 
 
