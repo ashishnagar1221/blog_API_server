@@ -75,12 +75,12 @@ app.get('/post/valid',(req,res)=>{
     .then((user)=>{
         //console.log(user)
         if(!user){
-            return res.status(404).json({name:'User not found'})
+            return res.send('User not found')
         }
         bcrypt.compare(pass,user.password).then(isMatch=>{
             if(isMatch)
-            return res.send("User is valid");  
-            else return res.send("Invalid User");
+            return res.send("This User is a valid user");  
+            else return res.send("User Entered wrong password");
             
         })
     })
