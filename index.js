@@ -24,14 +24,14 @@ mongoose.connect(URI,  {
   app.use(bodyParser.json());
   
   app.get('/',(req,res)=>{
-      res.json("Happy to connect!")
+      res.send("Happy to connect!")
   })
 
 //Show all users in database
 app.get('/users',(req,res)=>{
     Users.find().exec((err,users) =>{
         if(err)
-          return res.json(err);
+          return res.send(err);
         return res.json(users)
     })
 })
@@ -40,7 +40,7 @@ app.get('/users',(req,res)=>{
 app.get('/posts',(req,res)=>{
     Posts.find().exec((err,posts) =>{
         if(err)
-          return res.json(err);
+          return res.send(err);
         return res.json(posts)
     })
 })
@@ -55,11 +55,11 @@ app.post('/adduser',(req,res) =>{
     //newUser.allPost = allPost;
     bcrypt.genSalt(10,(err,salt)=>{
         bcrypt.hash(password,salt,(err,hash)=>{
-            if(err) return res.json(err);
+            if(err) return res.send(err);
             newUser.password = hash; 
             newUser.save((err,add)=>{
                 if(err)
-                    return res.json(`Email already registered`);
+                    return res.send(`Email already registered`);
                 return res.json(add);
             })
         })
@@ -74,12 +74,12 @@ app.get('/post/valid',(req,res)=>{
     .then((user)=>{
         //console.log(user)
         if(!user){
-            return res.json('User not found')
+            return res.send('User not found')
         }
         bcrypt.compare(pass,user.password).then(isMatch=>{
             if(isMatch)
-            return res.json("This User is a valid user");  
-            else return res.json("User Entered wrong password");
+            return res.send("This User is a valid user");  
+            else return res.send("User Entered wrong password");
             
         })
     })
@@ -87,34 +87,28 @@ app.get('/post/valid',(req,res)=>{
 
 //Adding a new post in data base
 app.post('/newpost',(req,res)=>{
-    console.log(req.body)
-    Users.findOne({name:req.body.name})
+    Users.findOne({name:req.body.postedBy})
     .then((user)=>{
-        if(user){ 
-            //console.log(user._id)
-            const {title,postText,postedBy} = req.body;
-            const newPost = new Posts();
-            newPost.title = title;
-            newPost.postText = postText;
-            newPost.postedBy = [user._id];
-             
+        //console.log(user._id)
+        const {title,postText,postedBy} = req.body;
+        const newPost = new Posts();
+        newPost.title = title;
+        newPost.postText = postText;
+        newPost.postedBy = [user._id];
+
         newPost.save((err,add)=>{
             if(err)
-                return res.json(`Error while adding the new User: ${err}`);
-        })       
+                return res.send(`Error while adding the new User: ${err}`);
+        })
         
         
         Users.findOneAndUpdate({_id: user._id},
         {$push:{allPost: newPost}},(err, add) =>{
-            if(err) res.json(`Error while adding the new User: ${err}`);
+            if(err) console.log(err);
             else{
-                return res.json(`Posted Successfully`);
+                return res.json(add);
             }
         });
-
-    }else{
-        return res.json("User doesn't exist")
-    } 
 
     })
 })
@@ -127,22 +121,22 @@ app.get('/delete',(req,res) =>{
     Posts.findOne({title:delTitle})
     .then(post =>{
         if(!post)
-            return res.json('Post of this title not found')
+            return res.send('Post of this title not found')
         else{
             //console.log(post)
             Users.findOne({name:author})
             .then(user =>{
                 if(!user)
-                    return res.json('User of this name not found')
+                    return res.send('User of this name not found')
                 else if(user.allPost.includes(post._id)){
                     Posts.deleteOne({title:post.title},(err,del)=> {
-                        if(err) return res.json("Some error occur")
+                        if(err) return res.send("Some error occur")
                         else{
-                            return res.json("Post Deleted")
+                            return res.send("Post Deleted")
                         }
                     });
                 }else{
-                    return res.json("Post does not belongs to Given User")
+                    return res.send("Post does not belongs to Given User")
                 }
             })
         }
