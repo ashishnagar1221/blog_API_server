@@ -9,8 +9,8 @@ const Users = require('./models/User');
 
 const app = express();
 
-//const URI = "mongodb://127.0.0.1:27017/Blog"
-const URI = "mongodb+srv://user:root@taramandal-puhil.mongodb.net/Blog?retryWrites=true&w=majority"
+const URI = "mongodb://127.0.0.1:27017/Blog"
+//const URI = "mongodb+srv://user:root@taramandal-puhil.mongodb.net/Blog?retryWrites=true&w=majority"
 
 mongoose.connect(URI,  {
     useNewUrlParser: true,
@@ -22,7 +22,6 @@ mongoose.connect(URI,  {
   .catch(err =>console.log(err));
 
   app.use(bodyParser.json());
- // app.use(require('./routes/auth'))
   
   app.get('/',(req,res)=>{
       res.send("Happy to connect!")
@@ -60,7 +59,7 @@ app.post('/adduser',(req,res) =>{
             newUser.password = hash; 
             newUser.save((err,add)=>{
                 if(err)
-                    return res.send(`Error while adding the new User: ${err}`);
+                    return res.send(`Email already registered`);
                 return res.json(add);
             })
         })
@@ -88,28 +87,34 @@ app.get('/post/valid',(req,res)=>{
 
 //Adding a new post in data base
 app.post('/newpost',(req,res)=>{
-    Users.findOne({name:req.body.postedBy})
+    console.log(req.body)
+    Users.findOne({name:req.body.name})
     .then((user)=>{
-        console.log(user._id)
-        const {title,postText,postedBy} = req.body;
-        const newPost = new Posts();
-        newPost.title = title;
-        newPost.postText = postText;
-        newPost.postedBy = [user._id];
-
+        if(user){ 
+            //console.log(user._id)
+            const {title,postText,postedBy} = req.body;
+            const newPost = new Posts();
+            newPost.title = title;
+            newPost.postText = postText;
+            newPost.postedBy = [user._id];
+             
         newPost.save((err,add)=>{
             if(err)
                 return res.send(`Error while adding the new User: ${err}`);
-        })
+        })       
         
         
         Users.findOneAndUpdate({_id: user._id},
         {$push:{allPost: newPost}},(err, add) =>{
-            if(err) console.log(err);
+            if(err) res.send(`Error while adding the new User: ${err}`);
             else{
-                return res.json(add);
+                return res.send(`Posted Successfully`);
             }
         });
+
+    }else{
+        return res.send("User doesn't exist")
+    } 
 
     })
 })
