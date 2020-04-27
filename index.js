@@ -2,8 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
+const cors = require('cors')
 const Posts = require('./models/Post');
 const Users = require('./models/User');
+
 
 const app = express();
 //const URI = "mongodb://127.0.0.1:27017/Blog"
@@ -19,6 +21,7 @@ mongoose.connect(URI,  {
   .catch(err =>console.log(err));
 
   app.use(bodyParser.json());
+  app.use(cors());
   
   app.get('/',(req,res)=>{
       res.send("Happy to connect!")
